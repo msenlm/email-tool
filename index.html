@@ -227,20 +227,22 @@
 
             <div style="padding: 28px 28px 8px;">
 
+              <div style="display: grid;">
               <!-- Gmail instructions -->
-              <div id="instructions-gmail">
+              <div id="instructions-gmail" style="grid-area: 1/1;">
                 <p style="font-size: 13px; color: #000000; line-height: 1.7; margin: 0 0 10px;">Hit <strong>Copy signature</strong> below, then in Gmail go to:</p>
                 <p style="font-size: 13px; color: #000000; line-height: 1.7; margin: 0 0 10px; padding: 8px 12px; background: #f5f5f5;"><strong>Settings &rarr; See all settings &rarr; General &rarr; Signature</strong></p>
                 <p style="font-size: 13px; color: #000000; line-height: 1.7; margin: 0 0 20px;">Create or select a signature, click inside the editor, paste, and hit <strong>Save Changes</strong>.</p>
               </div>
 
               <!-- Outlook instructions -->
-              <div id="instructions-outlook" style="display: none;">
+              <div id="instructions-outlook" style="grid-area: 1/1; visibility: hidden;">
                 <p style="font-size: 13px; color: #000000; line-height: 1.7; margin: 0 0 10px;">Hit <strong>Copy signature</strong> below, then in Outlook go to:</p>
                 <p style="font-size: 13px; color: #000000; line-height: 1.7; margin: 0 0 2px; padding: 8px 12px 4px 12px; background: #f5f5f5;"><strong>Windows:</strong> File &rarr; Options &rarr; Mail &rarr; Signatures</p>
                 <p style="font-size: 13px; color: #000000; line-height: 1.7; margin: 0 0 10px; padding: 4px 12px 8px 12px; background: #f5f5f5;"><strong>Mac:</strong> Preferences &rarr; Signatures</p>
                 <p style="font-size: 13px; color: #000000; line-height: 1.7; margin: 0 0 20px;">Click <strong>New</strong>, give it a name, paste into the editor, and hit <strong>OK</strong>.</p>
               </div>
+              </div><!-- end instructions grid -->
 
               <div style="padding-top: 18px; padding-bottom: 20px;">
                 <div style="font-size: 13px; color: #000000; margin-bottom: 12px;">--</div>
@@ -263,7 +265,7 @@
 <script>
 const COMPANY = 'Lightmatter';
 const WEBSITE = 'https://lightmatter.co';
-const logo = 'https://lightmatter.co/wp-content/uploads/2026/04/LM_Logo_Red.png';
+const logo = 'http://lightmatter.co/live/assets/lm_logomark_red.png';
 const logoFallback = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="160" height="44" viewBox="0 0 160 44"><rect width="160" height="44" fill="#FF3300"/><text x="12" y="28" font-family="Arial,Helvetica,sans-serif" font-size="15" font-weight="700" fill="#ffffff" letter-spacing="1">LIGHTMATTER</text></svg>');
 
 let activeClient = 'gmail';
@@ -272,8 +274,8 @@ function setClient(client) {
   activeClient = client;
   const isOutlook = client === 'outlook';
 
-  document.getElementById('instructions-gmail').style.display = isOutlook ? 'none' : 'block';
-  document.getElementById('instructions-outlook').style.display = isOutlook ? 'block' : 'none';
+  document.getElementById('instructions-gmail').style.visibility = isOutlook ? 'hidden' : 'visible';
+  document.getElementById('instructions-outlook').style.visibility = isOutlook ? 'visible' : 'hidden';
   document.getElementById('tab-gmail').classList.toggle('active', !isOutlook);
   document.getElementById('tab-outlook').classList.toggle('active', isOutlook);
 
