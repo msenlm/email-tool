@@ -187,7 +187,7 @@
             </div>
           </div>
 
-          <div style="background: #ffffff; border-radius: 0 0 12px 12px; overflow: hidden;">
+          <div id="email-preview-body" style="background: #ffffff; border-radius: 0 0 12px 12px; overflow: hidden;">
             <div style="display: grid;">
             <div id="header-gmail" style="grid-area: 1/1; padding: 24px 28px 20px; border-bottom: 1px solid #f0f0f0;">
               <div style="font-size: 16px; font-weight: 600; color: #000000; margin-bottom: 10px;">Lightmatter email signature</div>
@@ -659,8 +659,35 @@ document.getElementById('promo').addEventListener('change', function() {
   generate();
 });
 
+function lockPreviewHeight() {
+  const body = document.getElementById('email-preview-body');
+  const gmailH = document.getElementById('header-gmail');
+  const outlookH = document.getElementById('header-outlook');
+  const gmailI = document.getElementById('instructions-gmail');
+  const outlookI = document.getElementById('instructions-outlook');
+
+  // Measure Gmail height (current default state)
+  const gmailHeight = body.offsetHeight;
+
+  // Temporarily switch to Outlook and measure
+  gmailH.style.visibility = 'hidden';
+  outlookH.style.visibility = 'visible';
+  gmailI.style.visibility = 'hidden';
+  outlookI.style.visibility = 'visible';
+  const outlookHeight = body.offsetHeight;
+
+  // Restore Gmail state
+  gmailH.style.visibility = 'visible';
+  outlookH.style.visibility = 'hidden';
+  gmailI.style.visibility = 'visible';
+  outlookI.style.visibility = 'hidden';
+
+  body.style.minHeight = Math.max(gmailHeight, outlookHeight) + 'px';
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   generate();
+  lockPreviewHeight();
 
   const phoneEl = document.getElementById('phone');
   phoneEl.addEventListener('input', () => {
