@@ -48,20 +48,20 @@
     button {
       margin-top: 12px;
       padding: 10px 14px;
-      background: #FF3300;
+      background: #0033FF;
       color: white;
-      border: none;
+      border: 1px solid transparent;
       font-size: 12px;
       cursor: pointer;
       font-family: inherit;
     }
-    button:hover { background: #cc2900; }
+    button:hover { background: #0029cc; }
     .btn-secondary {
-      background: #ffffff;
-      color: #000000;
-      border: 1px solid #e0e0e0;
+      background: transparent;
+      color: #0033FF;
+      border: 1px solid #0033FF;
     }
-    .btn-secondary:hover { background: #f4f4f4; }
+    .btn-secondary:hover { background: rgba(0,51,255,0.06); }
     .action-row { display: flex; gap: 8px; align-items: center; margin-top: 14px; }
     .copy-feedback {
       font-size: 11px;
@@ -74,6 +74,27 @@
     .copy-feedback.show { opacity: 1; }
     .custom-promo { display: none; flex-direction: column; margin-top: -6px; }
     .custom-promo.visible { display: flex; }
+    :root {
+      --wtab-active: rgba(0,0,0,0.75);
+      --wtab-inactive: rgba(0,0,0,0.3);
+      --wtab-sep: rgba(0,0,0,0.2);
+    }
+    .window-tab {
+      padding: 0 8px;
+      font-size: 13px;
+      font-family: inherit;
+      border: none;
+      background: transparent;
+      color: var(--wtab-inactive);
+      cursor: pointer;
+      margin: 0;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+    }
+    .window-tab.active { color: var(--wtab-active); cursor: default; }
+    .window-tab:hover { background: transparent; }
+    .window-tab:hover:not(.active) { color: var(--wtab-active); }
+    .window-title-sep { font-size: 12px; color: var(--wtab-sep); line-height: 1; }
     @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
   </style>
 </head>
@@ -83,7 +104,7 @@
 
   <div class="grid">
     <div class="panel">
-      <p style="font-size: 13px; color: #000000; line-height: 1.6; margin: 0 0 16px;">Enter your details below:</p>
+      <p style="font-size: 16px; font-weight: 600; color: #000000; line-height: 1.3; margin: 0 0 16px;">Enter your details below</p>
       <input id="name" placeholder="Name" autocomplete="name" />
       <input id="title" placeholder="Title" />
       <input id="linkedin" placeholder="LinkedIn (optional)" />
@@ -98,25 +119,6 @@
       <div class="custom-promo" id="custom-promo">
         <input id="custom-promo-text" placeholder="Link label text" />
         <input id="custom-promo-url" placeholder="https://lightmatter.co/…" />
-      </div>
-
-      <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #ebebeb;">
-        <p style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #000000; margin: 0 0 10px;">Adding to Gmail</p>
-        <ol style="font-size: 12px; color: #000000; line-height: 1.9; margin: 0; padding-left: 16px;">
-          <li>Hit <strong style="color:#000000;">Copy signature</strong></li>
-          <li>In Gmail go to <strong style="color:#000000;">Settings → See all settings → General → Signature</strong></li>
-          <li>Create or select a signature, click inside the box, and paste</li>
-          <li>Hit <strong style="color:#000000;">Save Changes</strong></li>
-        </ol>
-      </div>
-      <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #ebebeb;">
-        <p style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #000000; margin: 0 0 10px;">Adding to Outlook</p>
-        <ol style="font-size: 12px; color: #000000; line-height: 1.9; margin: 0; padding-left: 16px;">
-          <li>Hit <strong style="color:#000000;">Copy signature</strong></li>
-          <li>Windows: <strong style="color:#000000;">File → Options → Mail → Signatures</strong><br>Mac: <strong style="color:#000000;">Preferences → Signatures</strong></li>
-          <li>Click <strong style="color:#000000;">New</strong>, name it, click in the editor and paste</li>
-          <li>Hit <strong style="color:#000000;">OK</strong></li>
-        </ol>
       </div>
     </div>
 
@@ -136,18 +138,27 @@
 
         <!-- Email window -->
         <div id="email-window" style="border-radius: 12px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.10), 0 1px 4px rgba(0,0,0,0.06);">
-          <div style="background: #e0e0e0; border-radius: 12px 12px 0 0; padding: 11px 14px; display: flex; align-items: center; gap: 10px;">
-            <div style="display: flex; gap: 6px;">
+          <div id="window-titlebar" style="background: #e0e0e0; border-radius: 12px 12px 0 0; padding: 14px 14px; display: flex; align-items: center; position: relative; transition: background 0.2s ease;">
+            <div id="traffic-lights" style="display: flex; gap: 6px; transition: opacity 0.2s;">
               <div onclick="closeWindow()" style="width: 11px; height: 11px; border-radius: 50%; background: #ff5f57; cursor: pointer;"></div>
               <div style="width: 11px; height: 11px; border-radius: 50%; background: #febc2e;"></div>
               <div style="width: 11px; height: 11px; border-radius: 50%; background: #28c840;"></div>
             </div>
-            <div style="flex: 1;"></div>
+            <div style="position: absolute; left: 50%; transform: translateX(-50%); display: flex; align-items: center;">
+              <button id="tab-gmail" class="window-tab active" onclick="setClient('gmail')">Gmail</button>
+              <span class="window-title-sep">/</span>
+              <button id="tab-outlook" class="window-tab" onclick="setClient('outlook')">Outlook</button>
+            </div>
+            <div id="windows-controls" style="display: none; margin-left: auto; align-items: center; gap: 0;">
+              <span style="padding: 0 11px; font-size: 13px; color: rgba(255,255,255,0.6); cursor: pointer; line-height: 1; font-weight: 300;">&#8211;</span>
+              <span style="padding: 0 11px; font-size: 10px; color: rgba(255,255,255,0.6); cursor: pointer; line-height: 1;">&#9633;</span>
+              <span onclick="closeWindow()" style="padding: 0 11px; font-size: 13px; color: rgba(255,255,255,0.6); cursor: pointer; line-height: 1; font-weight: 300;">&times;</span>
+            </div>
           </div>
 
           <div style="background: #ffffff; border-radius: 0 0 12px 12px; overflow: hidden;">
-            <div style="padding: 24px 28px 20px; border-bottom: 1px solid #f0f0f0;">
-              <div style="font-size: 16px; font-weight: 600; color: #000000; margin-bottom: 10px;">Moving data at the speed of light</div>
+            <div id="header-gmail" style="padding: 24px 28px 20px; border-bottom: 1px solid #f0f0f0;">
+              <div style="font-size: 16px; font-weight: 600; color: #000000; margin-bottom: 10px;">Lightmatter email signature</div>
               <div style="display: flex; align-items: center; gap: 10px;">
                 <div style="width: 36px; height: 36px; border-radius: 50%; background: #FF3300; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                   <span style="font-size: 12px; font-weight: 600; color: #fff;" id="avatar-initials">YN</span>
@@ -161,11 +172,43 @@
                 </div>
               </div>
             </div>
+            <div id="header-outlook" style="display: none; padding: 20px 28px 16px; border-bottom: 1px solid #e0e0e0; background: #f3f2f1;">
+              <div style="font-size: 18px; font-weight: 700; color: #000000; margin-bottom: 14px;">Lightmatter email signature</div>
+              <div style="display: flex; gap: 10px; align-items: flex-start;">
+                <div style="width: 36px; height: 36px; border-radius: 50%; background: #797775; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px;">
+                  <span style="font-size: 12px; font-weight: 600; color: #fff;" id="avatar-initials-ol">YN</span>
+                </div>
+                <div style="flex: 1; min-width: 0;">
+                  <div style="display: flex; align-items: baseline; gap: 8px; margin-bottom: 4px;">
+                    <span style="font-size: 11px; color: #605e5c; width: 30px; flex-shrink: 0;">From</span>
+                    <span style="font-size: 13px; font-weight: 600; color: #000000;" id="sender-name-ol">Your Name</span>
+                    <span style="font-size: 12px; color: #605e5c;" id="sender-email-ol">&lt;yourname@lightmatter.co&gt;</span>
+                  </div>
+                  <div style="display: flex; align-items: baseline; gap: 8px;">
+                    <span style="font-size: 11px; color: #605e5c; width: 30px; flex-shrink: 0;">To</span>
+                    <span style="font-size: 13px; color: #000000;" id="to-display-ol">team@lightmatter.co</span>
+                  </div>
+                </div>
+              </div>
+            </div>
 
             <div style="padding: 28px 28px 8px;">
-              <p style="font-size: 13px; color: #000000; line-height: 1.7; margin: 0 0 20px;">
-                At Lightmatter we're building photonic interconnects that move data at the speed of light, using a fraction of the energy of traditional copper. AI infrastructure has a power problem and we think photonics is the answer.
-              </p>
+
+              <!-- Gmail instructions -->
+              <div id="instructions-gmail">
+                <p style="font-size: 13px; color: #000000; line-height: 1.7; margin: 0 0 10px;">Hit <strong>Copy signature</strong> below, then in Gmail go to:</p>
+                <p style="font-size: 13px; color: #000000; line-height: 1.7; margin: 0 0 10px; padding: 8px 12px; background: #f5f5f5;"><strong>Settings &rarr; See all settings &rarr; General &rarr; Signature</strong></p>
+                <p style="font-size: 13px; color: #000000; line-height: 1.7; margin: 0 0 20px;">Create or select a signature, click inside the editor, paste, and hit <strong>Save Changes</strong>.</p>
+              </div>
+
+              <!-- Outlook instructions -->
+              <div id="instructions-outlook" style="display: none;">
+                <p style="font-size: 13px; color: #000000; line-height: 1.7; margin: 0 0 10px;">Hit <strong>Copy signature</strong> below, then in Outlook go to:</p>
+                <p style="font-size: 13px; color: #000000; line-height: 1.7; margin: 0 0 2px; padding: 8px 12px 4px 12px; background: #f5f5f5;"><strong>Windows:</strong> File &rarr; Options &rarr; Mail &rarr; Signatures</p>
+                <p style="font-size: 13px; color: #000000; line-height: 1.7; margin: 0 0 10px; padding: 4px 12px 8px 12px; background: #f5f5f5;"><strong>Mac:</strong> Preferences &rarr; Signatures</p>
+                <p style="font-size: 13px; color: #000000; line-height: 1.7; margin: 0 0 20px;">Click <strong>New</strong>, give it a name, paste into the editor, and hit <strong>OK</strong>.</p>
+              </div>
+
               <div style="padding-top: 18px; padding-bottom: 20px;">
                 <div style="font-size: 13px; color: #000000; margin-bottom: 12px;">--</div>
                 <div id="preview"></div>
@@ -176,7 +219,7 @@
       </div>
 
       <div class="action-row">
-        <button onclick="copyForClient('gmail')">Copy signature</button>
+        <button id="copy-btn" onclick="copySignature()">Copy signature</button>
         <button class="btn-secondary" onclick="resetForm()">Reset</button>
         <span class="copy-feedback" id="copy-feedback"></span>
       </div>
@@ -188,7 +231,36 @@
 const COMPANY = 'Lightmatter';
 const WEBSITE = 'https://lightmatter.co';
 const logo = 'https://lightmatter.co/wp-content/uploads/2026/04/LM_Logo_Red.png';
-const logoFallback = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="88" height="44" viewBox="0 0 160 44"><rect width="88" height="44" fill="#FF3300"/><text x="12" y="28" font-family="Arial,Helvetica,sans-serif" font-size="15" font-weight="700" fill="#ffffff" letter-spacing="1">LIGHTMATTER</text></svg>');
+const logoFallback = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="160" height="44" viewBox="0 0 160 44"><rect width="160" height="44" fill="#FF3300"/><text x="12" y="28" font-family="Arial,Helvetica,sans-serif" font-size="15" font-weight="700" fill="#ffffff" letter-spacing="1">LIGHTMATTER</text></svg>');
+
+let activeClient = 'gmail';
+
+function setClient(client) {
+  activeClient = client;
+  const isOutlook = client === 'outlook';
+
+  document.getElementById('instructions-gmail').style.display = isOutlook ? 'none' : 'block';
+  document.getElementById('instructions-outlook').style.display = isOutlook ? 'block' : 'none';
+  document.getElementById('tab-gmail').classList.toggle('active', !isOutlook);
+  document.getElementById('tab-outlook').classList.toggle('active', isOutlook);
+
+  // Email header
+  document.getElementById('header-gmail').style.display = isOutlook ? 'none' : 'block';
+  document.getElementById('header-outlook').style.display = isOutlook ? 'block' : 'none';
+
+
+  // Window chrome
+  document.getElementById('window-titlebar').style.background = isOutlook ? '#0078d4' : '#e0e0e0';
+  document.getElementById('traffic-lights').style.opacity = isOutlook ? '0' : '1';
+  document.getElementById('traffic-lights').style.pointerEvents = isOutlook ? 'none' : 'auto';
+  document.getElementById('windows-controls').style.display = isOutlook ? 'flex' : 'none';
+
+  // Tab text colours adapt to background via CSS variables
+  const root = document.documentElement;
+  root.style.setProperty('--wtab-active',   isOutlook ? 'rgba(255,255,255,0.95)' : 'rgba(0,0,0,0.75)');
+  root.style.setProperty('--wtab-inactive', isOutlook ? 'rgba(255,255,255,0.45)' : 'rgba(0,0,0,0.3)');
+  root.style.setProperty('--wtab-sep',      isOutlook ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.2)');
+}
 
 function esc(str) {
   return String(str)
@@ -398,6 +470,9 @@ function generate() {
   document.getElementById('avatar-initials').textContent = initials;
   document.getElementById('sender-name-display').textContent = name;
   document.getElementById('sender-email-display').textContent = '<' + emailHandle + '@lightmatter.co>';
+  document.getElementById('avatar-initials-ol').textContent = initials;
+  document.getElementById('sender-name-ol').textContent = name;
+  document.getElementById('sender-email-ol').textContent = '<' + emailHandle + '@lightmatter.co>';
 
   const toEl = document.getElementById('to-display');
   if (toEl) {
@@ -449,6 +524,7 @@ function generate() {
       to = 'team@lightmatter.co';
 
     toEl.textContent = to;
+    document.getElementById('to-display-ol').textContent = to;
   }
 
   let promoText = '', promoUrl = '';
@@ -493,7 +569,7 @@ function generate() {
 </div>`;
 }
 
-async function copyForClient(client) {
+async function copySignature() {
   const preview = document.getElementById('preview');
   const htmlContent = preview.innerHTML;
   const plainText = preview.innerText;
